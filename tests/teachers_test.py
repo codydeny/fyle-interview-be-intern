@@ -26,6 +26,23 @@ def test_get_assignments_teacher_2(client, h_teacher_2):
         assert assignment['state'] == 'SUBMITTED'
 
 
+def test_grade_an_assignment(client, h_teacher_2):
+
+    response = client.post(
+        '/teacher/assignments/grade',
+        headers=h_teacher_2,
+        json={
+            "id": 2,
+            "grade": "A"
+        }
+    )
+
+    assert response.status_code == 200
+    data = response.json['data']
+    assert data['state'] == 'GRADED'
+    assert data['teacher_id'] == 2
+
+
 def test_grade_assignment_cross(client, h_teacher_2):
     """
     failure case: assignment 1 was submitted to teacher 1 and not teacher 2
@@ -47,7 +64,7 @@ def test_grade_assignment_cross(client, h_teacher_2):
 
 def test_grade_assignment_bad_grade(client, h_teacher_1):
     """
-    failure case: API should not allow only grades available in enum
+    failure case: API should not allow only grades not available in enum
     """
     response = client.post(
         '/teacher/assignments/grade',
